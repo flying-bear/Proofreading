@@ -1,0 +1,650 @@
+\documentclass[fontsize=12pt,a4paper,twoside,openany]{scrbook}
+\usepackage{clba}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[german,english]{babel}
+
+% to link the references
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+            linkcolor=blue,
+            filecolor=magenta,      
+            urlcolor=cyan,
+            citecolor=[rgb]{0,0.4,0},
+            pdfpagemode=FullScreen,}
+
+% listing json file
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{xcolor}
+
+% two figures side by side
+% \usepackage{subcaption}
+
+% break lines in table
+% \usepackage{makecell}
+\usepackage{tabularx}
+% \newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% to use list of abbreviations
+% \usepackage[acronym]{glossaries}
+
+% not to be hyphenated
+\hyphenation{HDBSCAN}
+
+% add blank line between paragraphs
+\setlength{\parskip}{1em}
+
+% Import the biblatex package and sets a bibliography style
+\usepackage[backend=biber, style=authoryear,parencitestyle=authoryear,bibstyle=numeric]{biblatex}
+\addbibresource{bibfile.bib} %Imports bibliography file
+
+% Per Kapitel Nummerierung von Graphiken und Tabellen
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+
+% Hier die eigenen Daten eintragen
+\global\fach{Computational Linguistics }
+\global\arbeit{Master's Thesis}
+\global\titel{The Validation of Topic Clustering based on Top2Vec Topic Modeling Method}
+\global\author{Nataliia Sherstneva}
+\global\betreuer{M.Sc. Lütfi Kerem Şenel}
+\global\pruefer{Prof. Dr. Hinrich Schütze}
+\global\universitaet{Ludwig-Maximilians-Universität München}
+\global\fakultaet{Faculty of Languages and Literatures}
+\global\department{Department 2}
+
+\global\abgabetermin{26 July 2021}
+\global\bearbeitungszeit{12 March - 04 July 2021}
+\global\ort{Munich}
+
+\begin{document}
+
+% Deckblatt
+\deckblatt
+\pagestyle{scrheadings}
+\pagenumbering{gobble}
+
+% Erklärung fürs Prüfungsamt
+\erklaerung
+
+% Zusammenfassung
+\addchap{Abstract}
+\pagenumbering{Roman}
+\thispagestyle{scrplain}
+\noindent
+Dieses Dokument dient als Muster für eine Ausarbeitung einer
+Bachelorarbeit am CIS und wird in deutscher oder englischer Sprache
+erstellt (hier max. 250 Wörter)
+
+% Acknowledgements
+\addchap{Acknowledgements}
+\thispagestyle{scrplain}
+I would like to thank...
+
+% Inhaltsverzeichnis
+\tableofcontents
+
+\chapter{Introduction}
+In the past several decades...
+
+% Text mit arabischer Nummerierung
+\pagenumbering{arabic}
+
+\section{Motivation}
+Here comes Motivation...
+
+\section{Contribution}
+
+In particular no study, to our knowledge (to the best of my knowledge), has considered ....
+
+
+no previous research has investigated
+
+There is no previous research using ... approach.
+
+\section{Outline}
+The rest of the thesis is organized as follows.
+
+
+\chapter{Related Work and Theoretical Framework}
+\label{chapter:theory}
+In recent years in computer science have been developed many deep learning architectures that make it possible to use new approaches and techniques for data and text analysis \parencite{Minaee20} and even combine them to achieve better performance. Since the Top2Vec algorithm when searching a topic cluster in semantic space is based on several techniques, this chapter aims to give an overview of these methods. 
+
+The rest of the chapter is organized as follows. In Section \ref{sec:A} such deep learning state-of-the art embedding techniques like Paragraph Vector or \emph{doc2vec} (Section \ref{sec:doc2vec}) and transformer-based sentence embedding (Section \ref{sec:sbert}) are presented. An overview of the different topic modelling approaches is made in section \ref{sec:B}. Section \ref{sec:C} is dedicated to density based clustering, specifically HDBSCAN algorithm (section \ref{sec:HDBSCAN}) and clustering validation methods (\ref{sec:validation}).  
+
+\section{Embedding techniques in text analysis}
+\label{sec:A}
+
+Embedding was an important step in machine learning that began a new era of  natural language processing. Before embedding the numeric representation of texts was possible to get using simple approaches like one-hot encoding and the bag of words (BOW) method. These techniques have some weaknesses. Among the most important disadvantages, the two most crucial for the text representation drawbacks should be mentioned. First, the lack of consideration to words semantics leads to equal distance between similar and dissimilar words in the semantic spaces; secondly, both methods don't concern about word order,  as a result, different sentences might have the same vector representation. With the appearance of methods enabling learning of distributed representation of words, it has become possible to capture syntactic and semantic relationships between them \parencite{Le14}. 
+
+The first method aimed to learn dense vector representation of words with neural networks was introduced by Tomas Mikolov \parencite{TMikolov13} and is known as the \emph{word2vec} algorithm (see also \parencite{Mikolov13}). It is based on the so-called "distributional hypothesis" \parencite{Harris54}. Its meaning was expressed by the English linguist John Rupert Firth, who said  that a word is characterized by the company it keeps \parencite{Firth57}.
+
+Having a numerical representation for separate words in the document, it is reasonable to ask if it is possible to create continuous distributed vector representations for larger pieces of texts like a sentence, paragraph or even an entire document regardless of its length. So in 2014 Mikolov and Le proposed Paragraph Vector Framework also known as \emph{doc2vec} which was an extension for the word2vec algorithm \parencite[see][]{Le14}.
+
+Another state-of-the-art approach to get a sentence embedding is to use Transformers. There are a lot of methods based on Transformer architecture that tries to obtain embedding for a larger block of the text, i.e. sentences. The most common of them are: Skip-Thought Vectors, providing generic sentence representations \parencite{Kiros15} and the variation of them FastSent \parencite{Hill16}, proposed by Facebook AI Research in 2018 supervised sentence embedding techniques InferSent \parencite{Conneau17}, Universal Sentence Encoder and Sentence BERT.
+
+Due to the very limited time, not every embedding model could be tested. So in the next sections, only the most relevant for Top2Vec algorithm methods of getting numeric texts representation are considered. Firstly, the word2vec embedding model gets a brief overview and then based on it doc2vec algorithm will be discussed in more detail (Section  \ref{sec:doc2vec}). Among Transformer based methods, Universal Sentence Encoder (Section \ref{sec:muse}) and Sentence-BERT (Section \ref{sec:sbert}) will be considered. Both models are also used in Top2Vec topic modelling and according to the previous experiments are best performed \parencite{Wang20}.
+
+\subsection{Paragraph Vectors Framework (doc2vec)}
+\label{sec:doc2vec}
+
+In the word2vec embedding through the use of a simple feed-forward neural network, a vector is calculated for each word by the concatenation or averaging it with other word vectors in the context ("window"). As a result, each word is mapped to a continuous lower-dimensional vector. The semantic (dis)similarity is captured by the distance in the vector space. In other words, the word-vectors of similar words will be close to each other and the vectors of dissimilar ones will be distant from each other.
+
+The word embedding model for learning word vectors consists of two frameworks: the continuous Bag-of-Words (CBOW) model and the continuous Skip-gram model. Their architecture is depicted in Figure \ref{fig:cbow_skip_gr}. The first algorithm, CBOW,  tries to predict a target word based on its surrounding context words. The goal of the continuous Skip-gram model is to predict the context words based on a target word.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.90\textwidth]{cbow_skip_gr.png}
+\caption{The CBOW and Skip-gram architectures from \parencite{TMikolov13}}
+\label{fig:cbow_skip_gr}
+\end{figure}
+
+The architecture of Paragraph Vector Framework (\emph{doc2vec}) is based on the previous method for learning word vectors, the only difference in this model is that for prediction of the next word not only word-vectors are used but also an additional document-unique feature vector. So that each paragraph (or document in case if we want to obtain a document embedding) is mapped to this unique paragraph vector represented by a column in matrix \emph{D}, while words are still represented by a column in matrix \emph{W} like in the word2vec algorithm. 
+
+There are two implementations of the doc2vec Model: the Distributed Memory Model of Paragraph Vector (PV-DM) and Distributed Bag of Words version of Paragraph Vector (PV-DBOW).
+
+In the Distributed Memory Model every paragraph or document is mapped to a unique feature vector as well as every word. For the prediction task, the paragraph vector is concatenated or averaged with the context word vectors (see Figure \ref{fig:pv-dm}). Here the paragraph vector acts as a memory of the paragraph's or document's topic since it contains the missing information from the current context. After training this vector is used as a feature for paragraph or documents to make a prediction.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.70\textwidth]{pv-dm}
+\caption{The architecture of PV-DM Model for an input sentence}
+\label{fig:pv-dm}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.70\textwidth]{pv-dbow}
+\caption{A distributed Bag of Words model of Paragraph vectors}
+\label{fig:pv-dbow}
+\end{figure}
+
+Another Paragraph Vectors Framework is similar to the word2vec Skip-gram model. The paragraph vector is here simplified, and no local context is used. The target of this model is to predict the context words, randomly sampled from the paragraph vector \parencite{Le14} like Figure \ref{fig:pv-dbow} shows. Despite the simplicity of this model, it has a better performance for the topic modelling task \parencite{Angelov20}.
+
+The Paragraph Vectors Model has several important advantages. First of all, paragraph vectors captured the semantic of the words and even document semantics in dense vectors, so that the similar words (or documents) get the similar vectors and are located closer to each other in the vector space. Secondly, the Paragraph Vectors Model can be applied to the text of any length and does not require a task-specific tuning. Thirdly, the word order is taken into account at least in a small context \parencite{Dai15}. And finally, for the learning process, no labelled data are needed. 
+
+All of that makes Paragraph Vectors Framework very interesting for different NLP tasks like similarity search, text classification or topic modelling. According to the experiments doc2vec model usually outperforms not only Bag-of-Words model but also the word2vec one \parencite[see][]{Lau16, Le14}.
+
+\subsection{Universal Sentence Encoder}
+\label{sec:muse}
+
+The Universal Sentence Encoder was developed by Google and presented in \parencite{Cer18a} and \parencite{Cer18b}. Actually, the concept of the Universal Sentence Encoder (USE) is an umbrella term for a family of TensorFlow sentence encoding models. Currently, it  includes 11 models based on multitask training and hence their sentence embeddings (or high-dimensional vectors) can be used for such different tasks as text classification, clustering,  fine-grained question-answer retrieval, semantic similarity search, etc.\footnote{Collection of universal sentence encoders. \url{https://tfhub.dev/google/collections/universal-sentence-encoder/1}}
+
+The USE method consists of two encoding models for sentence representation learning: one of them based on the transformer encoder architecture, while another one uses the Deep Averaging Network (DAN) model \parencite{Cer18a} (see Figure \ref{fig:use_architecture}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.60\textwidth]{use_architecture.png}
+\caption{The two models of the Universal Sentence Encoder: (a) Transformer Encoder and (b) DAN}
+\label{fig:use_architecture}
+\end{figure}
+
+The architecture of the first model consists only of the encoder part of the original transformer architecture, presented in \parencite{Vaswani17}. Not using a Decoder part makes it possible to reduce significantly the training time, while keeping the transfer task performance. The USE transformer architecture consists of six stacked transformer encoder layers, where each of them has a self-attention layer followed by the feed-forward network. Generating a word embedding with the self-attention process takes a word order and surrounding context into account \parencite{Cer18a}. Then the context-aware embedding representation of words of the sentence is averaged together to get an output, namely a sentence level embedding represented by a 512-dimensional vector. 
+
+The advantage of this model is that it has good accuracy on downstream tasks. However, since the self-attention has \(O(n^2)\) time complexity, the time of computation scales significantly if the length of the sentence increase.
+
+The second variant of USE based on the Deep Averaging Network (DAN) \parencite{Iyyer15}. In this model the embedding of unigrams and bi-grams are computed and after that averaged to a single embedding. Then the averaged embedding will be fed to a feedforward deep neural network to get a final sentence embedding vector with 512 dimensions.
+
+In contrast to the Transformer variant, the DAN encoder has more efficient inference time, since doesn't have a self-attention process and use only feedforward operations, which time complexity is linear and equal to the length of the input sentence. However, this USE model has less accuracy than the transformer USE variant. 
+
+Most pre-trained sentence embedding models are language-specific. To be able to process an input of a particular language and to produce an embedding for it, the model should be trained on this language. The crucial difference of a multilingual USE is that it was trained simultaneously on multiple tasks across languages. The deep learning technique that enables multilingual sentence embeddings is called "Multi-task Dual-Encoder Model" \parencite{Chidambaram19}. This makes it possible to compare the sentences from different languages since the embedding of the texts across languages with similar meaning will be close to each other than the embeddings of the dissimilar texts. 
+The multilingual USE is tested as a pre-trained embedding model for the Top2Vec algorithm in the practical part of this thesis (see Section \ref{sec:muse_results}).
+
+\subsection{Sentence-BERT}
+\label{sec:sbert}
+
+Until recently, one of the common methods to get numerical sentence representation was BERT \parencite{Devlin19}. Due to the fact that different layers of this pre-trained transformer network learn different linguistic properties, it was possible by merging information obtained from the different layers to get a sentence representation either by averaging the output layer or using an output of the first [CLS] token \parencite{Wang20}. However, the quality of embedding resulting from this method was not good and because of the very large model size the complexity by finding the most similar sentence pair was very high (ab. 65 hours) \parencite{Reimers19}. These limitations make BERT not suitable for working with a large corpus of texts.
+
+The new state-of-the-art algorithm in sentence embedding called Sentence-BERT \parencite{Reimers19}. As the name implies, it is also based on the BERT and transformers architecture. Like this pre-trained network, Sentence-BERT also makes use of the attention mechanism, which allows the model to create an embedding by focusing only on the most important part of the text input. But Sentence-BERT modifies the architecture of BERT (or its extensions like RoBERTa) by adding a pooling operation to its output \parencite{Reimers19}.
+
+The crucial point of Sentence-BERT's architecture is the usage of the so-called siamese and triplet network. As depicted in Figure \ref{fig:S-BERT-arch} Sentece-BERT provides two sentences for the pre-trained BERT model and then put to use the polling layer to generate the embedding of each sentence. Then it will be concatenated and the softmax function will be applied. For the classification task, the embeddings of two sentences \emph{u} and \emph{v} will be used as an input to compute the cosine similarity score.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.90\textwidth]{S-BERT-arch.png}
+\caption{SBERT architecture with classification objective function for fine-tuning (left) and at inference with regression objective function (right) \parencite[from][]{Reimers19}}
+\label{fig:S-BERT-arch}
+\end{figure}
+
+These modifications make Sentence-Bert suitable for such tasks as clustering or semantic similarity search, for which BERT is unsuitable. The evaluation of this state-of-the-art algorithm for the common Semantic Textual Similarity (STS) task shows that it has not only higher computational efficiency than other state-of-the-art sentence embedding methods like InferSent of Universal Sentence Encoder, but also outperforms them.
+
+To obtain a multilingual and cross-lingual sentence embedding SBERT model was then extended to other languages through the use of the multilingual knowledge distillation method \parencite{Reimers20}. Within this approach, one model is treated as a student model and another one is a teacher model. Based on parallel sentence data the student model adopts from the teacher model a multilingual semantic embedding space for the original source language, which is usually English, and then transfer it to other languages \parencite{Reimers20}. 
+
+\section{Topic modelling}
+\label{sec:B}
+
+Getting a numeric representation of sentences or pieces of text is necessary to be able to find their semantic similarities. But usually in machine learning and Natural Language Processing when working with a large text corpus we want to derive specific topics that occur there or topic clusters. This is one of the common tasks and well-developed area in the modern computational linguistic. In this part of the work topic modelling, one of the text analysis methods that enable automatic extraction of topics presented in the corpus will be addressed.
+
+Topic modelling belongs to the unsupervised machine learning techniques, in other words through it one can discover the hidden semantic structures in the text and identify topics presented in the corpus without having any prior knowledge about the data and true classification of the documents in the corpus. This technique is not the only one using to analyse a group of words together and to identify topics within the texts. Some other methods like cluster analysis or latent semantic analysis (LSA) \parencite[see][]{Foltz96, Landauer2007} also do that. In all these methods, the dimensionality reduction of the full document's representation is performed by joining the documents into groups \parencite{Anandarajan18}. 
+
+In both LSA and topic modelling methods, the document-term matrix (DTM) or term-document matrix (TDM) are used as the input for the analysis. However, in contrast to LSA the aim of the topic modelling is not to reveal the hidden semantic structure of the document, but to discover the thematic one. Topic models concentrate on the underlying themes that can be found in the document collection and determine the probability that each document is associated with a given topic. 
+
+There are two types of topic models: mixed-membership and single-membership models. In the first type of modelling each document belongs to several topics with a different probability distribution, in the second one each document can be assigned to only one topic. The example of the mixed-membership topic modelling is for example the latent Dirichlet allocation (LDA) model, while the Top2Vec topic modelling algorithm represents the single-membership models. In the next two subsections, these techniques will be dealt with in more detail.
+
+\subsection{Probabilistic topic modelling}
+\label{sec:lda}
+
+In the probabilistic topic modelling the data are considered as arising from a generative process \parencite{Blei12}. Each document is understood here as a mixture of topics and every topic is a distribution of words within the topic. 
+
+The most common form of probabilistic topic modelling is latent Dirichlet allocation (LDA) introduced in \parencite{Blei03}. LDA based on the bag-of-words assumption, which means when building a topic model the word order is not considered. Thus, each word that appears in the corpus is randomly assigned to one of the topics  with certain probability scores as illustrated in Figure \ref{fig:lda_intuition}. Assuming Dirichlet prior distribution over both document-topic and topic-word distributions, LDA treats any topic as a distribution over words from the corpus and each document as a collection of corpus-wide topics \parencite{Blei03}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.80\textwidth]{lda_intuition.png}
+\caption{The intuition behind the LDA algorithm. From \parencite{Blei12}}
+\label{fig:lda_intuition}
+\end{figure}
+
+LDA topic model has several input parameters:
+\begin{itemize}
+  \item \(K\) is the total number of topics that should be extracted from the all document in the corpus;
+  \item \(D\) is the total number of documents;
+  \item \(N\) denotes the total number of words in document \emph{d}, where W\(_{d,n}\) is an observed n\(_{th}\) word in that document.
+  \item \(\alpha\) is a Dirichlet parameter, that means the density of per-document topic distribution,
+  \item \(\beta\) is another Dirichlet parameter to choose and is responsible for per-topic word distribution,
+  \item \(\eta\) is a Dirichlet topic hyperparameter.
+\end{itemize}
+
+All these parameters are represented in Figure \ref{fig:lda} that is a plate representation of the generative nature of LDA. The biggest outer plate should be considered as a corpus of documents, while the inner plate stands for the repeated choice of topics \(Z\) and words \(W\) within a document \(N\) \parencite[see also][p.~997]{Blei12}. Each document \emph{d} is a mixture of topics with topic proportions \(\theta_{d}\) that comes from a Dirichlet(\(\alpha\)). Each topic \(k\) has a distribution over words \(\beta_{k}\) from Dirichlet(\(\eta\)). In each document, each word W\(_{d,n}\) is drawn from a topic \(Z_{d,n}\) with a topic assignment \(\beta_{k}\). 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.70\textwidth]{lda.png}
+\caption{Graphical representation of the random variables (nodes) in the LDA model with their dependencies (edges).}
+\label{fig:lda}
+\end{figure}
+
+In other words, in LDA topic modelling every term in a document can be drawn from a different topic or belongs to diverse topics with a different probability score. Every document can be assigned to several topics with also a different probability score.
+
+Although LDA is one of the most widely used topic modelling algorithm to extract topics from a large collection of documents, it has some limitations. First, based on the bag-of-words representation of documents this model does not concern with word order and thus ignore word semantics. To address this problem during the pre-processing the techniques like stemming and lemmatization are used. However, that does not make the similarity of words with different word stems (like \emph{huge} and \emph{big}) more visible. Secondly, LDA assumes that the number of topics presented in the corpus are known and should be given the algorithm like a hyperparameter (\(K\)). Nevertheless, the quality of extracted topics clusters strongly depends on this value, which in most cases is unknown and usually can not be chosen intuitively, requiring a lot of time-consuming tests. 
+
+LDA is not the only example of probabilistic topic modelling. Within this paradigm, there are other approaches  such as correlated topic model (CTM) \parencite{Blei05}, dynamic topic model (DTM) \parencite{Blei06}, structural topic model (STM) \parencite{Roberts13} and some others. All of them make use of LDA as a basis of their model and are usually an extension of it.
+
+\subsection{Topic modelling with Top2Vec}
+\label{sec:Top2Vec}
+
+Top2Vec is a new unsupervised algorithm for topic modelling and semantic search proposed by Angelov in \cite*{Angelov20}. In contrast to LDA, it does not require any pre-processing like removing stop-words, stemming and lemmatization and can automatically detect the number of topics presented in the large corpus. Also, topic modelling Top2Vec algorithm does not use the bag-of-words representation of words, because of its inability to capture the similarity of words, but make use of semantic embedding instead.
+
+When identifying the topic clusters in the collection of documents Top2Vec first of all converts all document to high-dimensional embedding vectors. In this semantic vector space more similar documents turn out to be closer to each other building dense areas of document vectors and dissimilar ones are located further apart from each other and create sparse areas. Then Top2Vec aims to identify dense clusters of documents and to determine what topic each cluster is about. In order to perform all these steps, Top2Vec makes use of three algorithms.
+
+To obtain semantic embedding, Top2Vec utilizes Paragraph Vectors or doc2vec model (see Subsection \ref{sec:doc2vec}). In particular, it uses Distributed Bag of Words Model (DBOW) to learn jointly embedded document and words vectors. Due to this, in the generated semantic vector space the distance between similar documents are smaller than between dissimilar ones. Also since words and documents were embedded jointly each document (purple points in Figure \ref{fig:sem_space}) is surrounded by its most representative words (green points in the same figure).  
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.60\textwidth]{sem_space.png}
+\caption{The illustration of semantic space from \parencite{Angelov20}}
+\label{fig:sem_space}
+\end{figure}
+
+This semantic space, which consists of words and document vectors, is treated in Top2Vec as a \emph{"continuous representation of topics"} \parencite[p.~3]{Angelov20}. Accordingly, the areas with a large concentration of high-dimensional documents vectors, namely dense areas, contain highly similar documents. The Top2Vec algorithm's presupposition is that the number of these dense areas is equivalent to the number of underlying topics in the corpus. 
+
+So the next step is that to find these dense areas of documents. For that purpose, the HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) \parencite{McInnes17b, McInnes17a} algorithm is used.\footnote{In more detail the HDBSCAN algorithm will be addressed in the next subsection \ref{sec:HDBSCAN}.} Since HDBSCAN requires low-dimensional data to find the dense clusters on the high-dimensional document vectors the dimensionality reduction using UMAP (Uniform Manifold Approximation and Projection for Dimension Reduction) algorithm \parencite{McInnes18, McInnes20} will be performed.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.90\textwidth]{umap-hdbscan.png}
+\caption{UMAP dimensionality reduction and density based clustering \parencite[see also][]{Angelov20}}
+\label{fig:umap-hdbscan}
+\end{figure}
+
+When dense areas with jointly embedded document and word vectors are found the topics will be determined by calculating the topic vectors of each cluster as an arithmetic mean of all documents vectors from the corresponding cluster. The word vectors that are closest to the resulting topic vectors are considered as the most semantically similar words to this topic. Furthermore, despite the lack of any pre-processing like the removal of stop and most common words, the topics keywords, as claimed in the paper, does not contain any of them. It happens due to the fact that such words are so frequent, that they appear in most documents and therefore in the semantic space they found to be equidistant from all of them.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.80\textwidth]{topics.png}
+\caption{Examples of some topic clusters found by Top2Vec algorithm}
+\label{fig:topics}
+\end{figure}
+
+Additionally, in the semantic space more similar topics are usually placed close to each other. For example, in Figure \ref{fig:topics} topic 14 that deals with the Astrazeneca vaccine and its by-effects and topic 72 that concerns other COVID-19 vaccines. The same effect can be observed by topics 29 and 57, that both are subtopics of the election topic. Such topics can be grouped together by performing hierarchically topic reduction.
+
+
+\section{Density-based clustering}
+\label{sec:C}
+
+In this Section the clustering  density-based clustering algorithm HDBSCAN applied in Top2Vec to obtain topic clusters is considered in more detail. However, since when analysing high-dimensional vectors the problem is known as the "curse of dimensionality" \parencite{Theodoridis08} occurs, the dimensionality reduction of vector space is required before clustering. So first some dimensional reduction techniques are considered since they are also relevant both for Top2Vec algorithm and this thesis.
+
+\subsection{Dimensionality Reduction}
+\label{sec:umap}
+
+In the high-dimensional space, the vectors that organized in the cluster are very sparse. Therefore, it becomes difficult to find dense clusters and leads to higher computational complexity \parencite{Angelov20}. So an important step before applying a clustering algorithm is to perform dimensional reduction and to eliminate unnecessary features.
+
+There are several dimensionality reduction techniques. Such of them like Linear Discriminant Analysis (LDA) \parencite{Tharwat17}, Singular Value Decomposition (SVD) \parencite{Klema80} or based on it Principal Component Analysis (PCA) \parencite{Hotelling33, Jolliffe86} and some others belong to linear dimensionality reduction methods. However, real data are usually not linearly separable and the methods mentioned above do not have a good performance on them. Therefore, in that case non-linear or manifold learning techniques are used. 
+
+One of such non-linear methods is the method Uniform Manifold Approximation and Projection (UMAP) that relies on the manifold theory and ideas from topological data analysis \parencite{McInnes18, McInnes20}. According to the authors, UMAP has advantages over another well-known method for dimensionality reduction, namely t-distributed Stochastic Neighbour Embedding (t-SNE) \parencite{Maaten08}. In contrast to t-SNE UMAP method represents both the local and the global structure of the data and is scalable to larger data sets. 
+
+This method has several hyperparameters like the number of nearest neighbours \emph{n\_neighbors} that control, to what extent local and global structure is preserved, a metric to compute the distance and the parameter to determine the number of dimensions after the dimensionality reduction.
+
+The dimensionality reduction with UMAP algorithm is computed in two steps. Firstly, through building a weighted k-neighbour graph k nearest neighbours are extracted \parencite{McInnes20}, then the low dimensional layout of this graph is computed.
+
+The already mentioned t-SNE algorithm due to its sensitivity to the local structure is usually used for data visualization followed by the manual investigation\footnote{For these purposes a good data transparency in automaticaly detected clusters can be reached with such tools like  Python package pandas and interactive data visualization library \href{https://bokeh.org/}{Bokeh}.} of the clusters. Here the dimensionality reduction is performed in the following way: firstly, the similarity between data points in the high-dimensional space is transformed into a probability distribution. Then the difference between the distribution in the original high dimensional space and that in the embedded 2D or 3D space will be minimized. One of the main advantage if this method is that it can maintain the local structures and thereby is good at dealing with density-based clusters, that are arbitrarily shaped. However, this method has also several hyperparameters and depends on its values takes more into consideration either local or global structure.
+
+\subsection{HDBSCAN for topic clustering}
+\label{sec:HDBSCAN}
+
+HDBSCAN method or Hierarchical-DBSCAN was proposed by \parencite{Campello13, Campello15} as an improved version of two algorithms: DBSCAN clustering method (or (Density-Based Spatial Clustering of Applications with Noise) \parencite{Ester96} and its extension OPTICS algorithm \parencite{Ankerst99}.
+
+In DBSCAN the identification of the dense regions depends on two input parameters:  \(\varepsilon\) (\emph{epsilon}) that determine the neighbourhood radius around any point \emph{x} and the minimum number of points (\(min_{pts}\)) within this neighbourhood. The point x\(_p\) is considered as a \emph{"core object"} \parencite{Campello13}, if within its \(\varepsilon\)-neighbourhood the number of points is equal or greater than \(min_{pts}\). The points that are located inside the \(\varepsilon\)-neighbourhood, but have no enough points to build a core object are called \emph{border points} (like the point \emph{y} in Figure \ref{fig:core_point}). Other points are treated as noise since they are neither core not border objects (like the green point \emph{z} in the same Figure). The main idea of DBSCAN is that the subset of all data points is considered as a cluster if each point in this subset is directly or transitively density-reachable from any of the core points within this cluster \parencite{Ester96}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.70\textwidth]{core_point.png}
+\caption{The classification of points in DBSCAN clustering algorithm.}
+\label{fig:core_point}
+\end{figure}
+
+This scenario has some disadvantages. The result of the clustering mostly depends on the parameter that is hard to choose intuitively and set correctly, namely the \emph{epsilon} parameter. It appears to be a "\emph{global} density threshold" \parencite{Malzer20} that prevent to register cluster with a different density. Another problem of DBSCAN is that it is not deterministic, since if the border point is density-reachable from more than one cluster (core points) the result, to what cluster it will be assigned depends on the implementation and processing order of the data. 
+
+HDBSCAN overcomes all these limitations and does not require any \(\varepsilon\)-threshold parameter. The minimum number of neighbours (\(min_{pts}\)) is the only input parameter that should be fed to the algorithm. Then the hierarchical structure ("HDBSCAN hierarchy" \parencite{Campello13}) w.r.t. \(min_{pts}\) will be built with all possible values for the \(\varepsilon\) neighbourhood radius. In order to identify noise points and to distinguish them from the objects in the dense area HDBSCAN's authors introduced the concept of \emph{"mutual reachability distance"} \parencite[p.~163]{Campello13} between two objects \(\textbf{x}_p\) and \(\textbf{x}_q\), that is defined as follows: \[d_{mreach}(\textbf{x}_p, \textbf{x}_q) = max\{d_{core}(\textbf{x}_p), d_{core}(\textbf{x}_q), d(\textbf{x}_p, \textbf{x}_q)\}\] 
+where \(d(\textbf{x}_p, \textbf{x}_q)\) is a chosen distance (Euclidean, Manhattan, Jaccard, etc.) between these two points. It makes HDBSCAN more robust to noise and enables to abandon the concept of border points. 
+
+Using Prim's algorithm \parencite{Mamun16} detected data subsets can be visualized in the form of the minimum spanning tree with data points as the vertices, connected by the edges according to the mutual reachability distance. Based on the minimum spanning tree as a next step the cluster hierarchy can be represented as a dendrogram by sorting the edges in the ascending order of the distance value. Then a different number of flat clusters with a number of points greater than or equal to \(min_{pts}\) can be obtained by setting the \(\varepsilon\)-threshold to the particular value.
+
+One of the most advantages of HDBSCAN is that it is able to find arbitrary shaped clusters with diverse density and has more robustness to noise. These characteristics are of importance especially in the topic modelling context since in the semantic space the document vectors have a different density \parencite{Angelov20} and clusters to be identified are usually arbitrary shaped. With HDBSCAN it is possible to detect the number of clusters automatically without having any intuition about its shapes and density. The dense areas of document vectors will be assigned a positive label, while the objects located in the sparse areas will get a negative noise label (-1) \parencite{Angelov20}.
+
+\section{Clustering validation techniques}
+\label{sec:validation}
+Since clustering belongs to the unsupervised machine learning techniques where there is no prior information about the underlying structure and data distribution, the validation procedure of the resulting clusters becomes important, if rather the quite challenging issue. All approaches to the cluster validity assessment are divided in the literature into two main classes based on external and internal criteria \parencite{Halkidi01a}. In the next two sections, the most relevant for this thesis validation measures are described.
+
+\subsection{External clustering validity methods}
+External indices are also treated as a supervised validation approach \parencite{Palacio19} since the validation procedure here is based on pre-existing knowledge like true data labels ("ground truth"). 
+Among external measures for clustering validation, the most known one is the adjusted Rand Index \parencite{Hubert85}. It belongs to the binary external measures \parencite{Handl05} and based on the true and predicted labels for each item considers all sample pairs and computes the similarity between two sets of labels. The resulting values of the index lie within the range of -1.0 to 1.0 score, where the higher values mean a better clustering. The main advantage of the index is its interpretability and usability for all sort of clustering algorithms as long as true labels are provided. 
+
+Another similar approach is represented by Jaccard similarity score where the intersection of two label sets divided by the number of all labels \parencite{Arnaboldi15}. However, since this metric rewards only positive label agreements \parencite{Handl05} it is not reliable enough in case of a lack of positive labels for some classes.
+
+\subsection{Internal clustering validity methods}
+Within this approach the quality of clusters is estimated relying only on the clustering information (assigned labels) and that of one inherent in the data itself. Here there are two main criteria the internal validation is based on:
+\begin{itemize}
+  \item \emph{Compactness} (cohesion) deals with the intra-cluster distance and estimates the closeness of the elements within each cluster.
+  \item \emph{Separation} addresses the inter-cluster distance and indicates how well-separated each cluster is from other ones.
+\end{itemize}
+According to a definition a clustering algorithm is treated as a good one if it has a small intra-cluster distance and large inter-cluster distance \parencite{Kim05}. Therefore, most clustering validation methods take into account both criteria during the assessment. Among them, the most popular validation measures proposed in the literature are Calinski-Harabasz index (\emph{CH}) \parencite{Calinski74}, Dunn's index \parencite{Dunn74}, Davies-Bouldin index (\emph{DB}) \parencite{DaviesB79}, Silhouette index \parencite{Rousseeuw87} and some others. In order to find the optimal number of clusters the corresponding index should be maximized or as in the case of DB index minimized.
+
+However, dealing with density-based clustering algorithms that identify arbitrary shaped clusters, these measures have no good performance since they estimate separation based on the cluster centroIDs and are not able to handle with noise in the data \parencite{Moulavi14}. As an attempt to handle with algorithms based on density and hierarchical analysis \textcite{Saracli13} tried to find the best number of clusters using as an evaluation metric a Cophenetic Correlation Coefficient (\emph{CPCC}). This index proposed by Sokal and Rohlf in \cite*{Sokal62} makes use of a dendrogram of the hierarchical clustering and shows the correlation between this dendrogram (or cophenetic matrix) with cophenetic distances and distance (proximity) matrix that contains the information about the similarity of observations. Although this index is quite appropriate for hierarchical clustering \parencite{Palacio19}, it still can not capture well the arbitrary shaped clusters. Another drawback is its high computational complexity.
+
+Halkidi and Vazirgiannis have introduced in \cite*{Halkidi01b} the \emph{S\_Dbw} index (Scat-Density between and within clusters index) that was intended to find the better partitions in the data by taking into consideration the density variations among clusters \parencite{Halkidi01b}. Comparing with other clustering validation measures, \emph{S\_Dbw} index performs very well for different clustering algorithms including hierarchical one and DBSCAN \parencite{Liu10}. Nevertheless, since the separation between clusters is computed based on the centres of the clusters (centroIDs) this index can not contend with non-convex shapes of clusters.
+
+In order to overcome this limitation, the same authors have proposed then another measure called \emph{CDbw} index (Composed density between and within cluster) \parencite{Halkidi08}. The crucial difference of \emph{CDbw} index to the former validation measures was that in this approach each cluster is represented not by a single point but by multi-representative points \parencite{Halkidi08}. Due to this, \emph{CDbw} index based on the density distribution of points within and between clusters can also handle aspherical arbitrarily shaped clusters. Nonetheless, this validity index is also not without shortcomings. The main drawback of this metric is that when taking the number of representative points for each cluster to evaluate it, \emph{CDbw} index keep this number of points unchanged during the whole validation process. As a consequence, the cluster with a different density or number of objects can not be evaluated correctly or even under evaluation \parencite{Moulavi14}.
+
+The new density-based clustering validation metric called DBCV was proposed by \textcite{Moulavi14} to overcome all drawbacks of the former measures by taking into account both density and shapes of the clusters. In DBCV the idea of the density computation is based on the Hartigan’s model of Density Contour Trees \parencite{Hartigan75}, within that clusters are defined as areas with high density separated from each other by low-dense areas \parencite{Moulavi14, Hartigan75}. Based on that, the authors of the DBCV index assume that the least dense regions inside each cluster are still denser than the most dense areas between them \parencite{Moulavi14}. Therefore, for the evaluation of the compactness of the clusters they compute the least dense regions inside each cluster and in order to measure between-cluster separation they evaluate the highest density areas between these clusters. This new definition of the object's core distance makes DBCV index more capable when dealing with noise in the data and enable it to capture the arbitrarily shaped clusters of different shapes, sizes and densities. The index output a score in the range [-1, 1], where the large index value means the better clustering.
+
+\section{Summary}
+Here considered in the sections above the most relevant for this thesis methods will be summarized. Firstly, different embedding techniques like doc2vec and transformer-based sentence embedding methods are reviewed. The Paragraph Vector Model (doc2vec) is based on the previous method using for learning word vectors (word2vec) but have integrated an additional document-unique feature vector also enables the learning of document vectors. The Transformer-based Sentence Embedding technique is represented by such models as InferSent, Universal Sentence Encoder and Sentence BERT. All of these models are based on the transformer architecture and differ in the way of learning of sentence numeric representations.
+
+Topic modelling approaches include mixed-membership and single-membership models. The most well-known method among the first type of topic modelling is the generative probabilistic topic modelling like LDA and its extensions. Here topics are seen as discrete values and distribution over words from the corpus. An example of single-membership models is the Top2Vec algorithm for topic modelling and semantic search where the topic is thought of as a continuous representation.
+
+Lastly, the very relevant for Top2Vec algorithm techniques like some dimensionality reduction methods and hierarchical density-based cluster analysis, namely HDBSCAN have been discussed. UMAP and t-SNE are non-linear techniques using for dimensionality reduction. While the first one is good at maintaining both the local and the global structure of the data and is scalable to larger datasets, the t-SNE method demonstrates more sensitivity to the local structure, which makes it suitable for data visualization. 
+
+When dealing with unsupervised clustering algorithms, the validation procedure assumes greater importance. All clustering validity methods depending on that if they estimate the quality of clustering using the external knowledge (e.g. true labels) or base exclusively on the information intrinsic to the data itself are divided into external and internal measures. The arbitrary shaped clusters obtained with any density-based clustering algorithm can be evaluated with such external index like the adjusted Rand Score and with DBCV index as an internal one.
+
+\chapter{Dataset}
+\label{chap:dataset}
+This chapter aims to provide a representation of the underlying data used to extract the topic clusters with Top2Vec topic modelling algorithm and different embedding models\footnote{More details about embeddings model the Top2Vec algorithm was tested with please see in the next Chapter (Chapter \ref{chap:exp}).}. In order to evaluate the clustering results in a supervised way, a toy corpus has been created. For the unsupervised training, a much larger dataset was used. 
+
+The overview of the whole dataset is presented in Section \ref{sec:corp_exploration} of this chapter. The process of preparation of the dataset for cluster evaluation in the supervised and unsupervised mode is described in Section \ref{sec:exp_setup}.
+
+\section{Corpus description}
+\label{sec:corp_exploration}
+
+The underlying dataset was provided by the Ippen Digital GmbH \& Co. KG and consists of the German news articles from various regional newspaper publishers like Merkur, TZ, Frankfurter Rundschau, etc. The articles covered a broad range of topics from local news, business and politics to sport news, TV and articles on the automotive industry.
+
+The data were extracted from the in-house database for the period of January to April 2021. Each document from this database apart from the content contains also metadata such as a document ID, length (the number of characters in the article), "client" (what newspaper publisher the article comes from), "category", "headline", seo headline and some other information. The exemplary document is demonstrated in the Listing \ref{listing:json-example}.
+
+To create a dataset, all documents within the mentioned period were filtered by the following categories: "Auto", "Games", "Politik" (Politics), "Fußball" (Football), "Sport", "Kultur" (Culture), "Serien" (Series), "Film, TV \& Serien", "Serien, TV \& Kino" (Series, TV \& Cinema). The last three categories were considered as belonging to the one topic since they have similar content, but differ only in their name depends on the newspaper they belong to. For the clustering evaluation after training, this category was unified as a "Serien" one. The entire dataset consists of the 17.532 documents, that was extracted with all available metadata and saved as several JSON files.
+
+Before training the content of the documents was cleaned while the lines that have nothing to do with the article itself like HTML hyperlinks or some metadata (e.g., © dpa-infocom) were removed.
+
+
+\begin{listing}[ht!]
+\begin{minted}[frame=single,
+            style=tango,
+            showtabs=false,     
+            framesep=3mm,
+            escapeinside={\%*}{*)},        
+            linenos=true,
+            breaklines=true,
+            xleftmargin=21pt,
+            tabsize=4]{json}
+{
+    "doc_id": 90161825, 
+    "length": 998, 
+    "client": "Merkur.de", 
+    "clientid": 268, 
+    "category": "Politik", 
+    "headline": "Impfbereitschaft in Deutschland nimmt zu", 
+    "seo_headline": "Impfbereitschaft in Deutschland nimmt zu", 
+    "publishing_date": "2021-01-07 19:01:18", 
+    "content": " Berlin (dpa) - Die Bereitschaft zur Impfung gegen das Coronavirus hat laut einer Umfrage in Deutschland zugenommen. In einer Befragung von infratest dimap für den ARD-Deutschlandtrend von Anfang der Woche gaben 54 Prozent an, sich auf jeden Fall gegen das Coronavirus impfen lassen zu wollen. Das waren 17 Prozentpunkte mehr als im November 2020. Weitere 21 Prozent sagten, sie wollten sich wahrscheinlich impfen lassen (minus 13 Prozentpunkte). Die Impfbereitschaft sei in allen Altersgruppen gewachsen, insbesondere aber bei den Menschen unter 65 Jahren. Nach wie vor zeigten sich jüngere Menschen gegenüber einer Corona-Impfung weniger offen als ältere. Rund 36 Prozent der Befragten bezeichneten das Tempo der begonnenen Corona-Impfungen als angemessen, mehr als die Hälfte (52 Prozent) empfinden es als zu langsam. 70 Prozent erklärten, es sei richtig gewesen, dass die EU-Länder die Impfstoffe gemeinsam bestellt haben. 26 Prozent halten das für falsch. © dpa-infocom, dpa:210107-99-936480/2", 
+    "image": 25393708, 
+    "modification_date": "2021-01-07 19:06:30"
+}
+
+\end{minted}
+\caption{The example of the document from the in-house database.} 
+\label{listing:json-example}
+\end{listing}
+ 
+\section{Dataset preparation for cluster evaluation in supervised way}
+\label{sec:exp_setup}
+
+Because depends on the embedding and UMAP and HDBSCAN parameters, the Top2Vec topic modelling algorithm leads to different results, it is important to run it on small subparts of the dataset. This makes it possible to run the algorithm in a semi-supervised way and to measure the quality of the resulting clusters not only with internal DBCV index \parencite{Moulavi14}, but also with the external one, namely adjusted Rand index \parencite{Hubert85}. 
+
+For this purpose, a toy corpus was created, while from the whole dataset only articles for March 2021 was chosen and then filtered by the following categories: "Auto", "Games", "Fußball", "Serien" (and its name variations). These categories were selected in order to have articles with clearly separated content, whereas some words between at least three categories ("Games", "Fußball", "Serien") can be shared. That has made the algorithm's behaviour more transparent.
+
+The final toy corpus consists of 1.640 documents with the following document distribution among four categories:
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{ |c|c| } 
+        \hline
+        \textbf{Category} & \textbf{Number of documents} \\
+        \hline
+        Auto & 240 \\
+        \hline
+        Games & 254 \\
+        \hline
+        Fußball & 840 \\
+        \hline
+        Serien & 306 \\
+        \hline
+    \end{tabular}
+    \caption{Document distribution within each of the four selected categories in the toy corpus.}
+    \label{tab:doc_dist}
+\end{table}
+
+Considering that the Top2Vec algorithm is prone to find a lot of subtopics, it is expected to have more than four clusters after the training. Therefore, in order to measure the quality of these clusters, all articles were manual annotated. 
+
+The annotation process was realized in four steps. Firstly, underlying subtopics per each category were identified. Secondly, each document was assigned a label that corresponds to the subtopic of the document. Thirdly, a dictionary with the mapping of the corresponding subtopic (label) to its relevant keywords was created. And finally, since for the computation of the validity score the adjusted Rand index requires not labels, but true and predicted topic IDs all manual created labels a corresponding ID was assigned based on the matching between topic and label keywords (the same ID as that of the topic in case of match or a new ID).
+
+Lastly, after the process of UMAP and HDBSCAN parameter selection with each available embedding was done and the set of parameters with that Top2Vec algorithm output the best clusters on toy corpus was found, the algorithm with these parameters was applied to the entire dataset.
+
+\chapter{Experiments}
+\label{chap:exp}
+
+In this chapter the experiments with relevant methods explained in Chapter \ref{chapter:theory} and implementation aspects will be presented. The baseline model is addressed in Section \ref{sec:lda_baseline}. Experiments itself are explained in Section \ref{sec:exp}. It includes the tests with different embedding models (both suggested by Top2Vec algorithm and additionally integrated into that to obtain German embedding) (Section \ref{sec:exp_emb}) and hyperparameter selection process to get a better clustering (Section \ref{sec:hypeparam}).
+
+\section{Test with LDA as baseline topic model}
+\label{sec:lda_baseline}
+
+Since topic modelling belongs to an unsupervised learning, it is a hard to find an optimal heuristic for it. Therefore to understand the context of topic modelling with the underling data and possible challenges that could be helpful to find better more complex solution a simple baseline model is needed. As a such baseline model Latent Dirichlet Allocation (LDA) considered in Section \ref{sec:lda} of Chapter \ref{chapter:theory} was chosen, since it is the most common type of topic modelling.
+
+The LDA algorithm was run on the small dataset with 200 iterations\footnote{The number of iterations was determined based on the log likelihood parameter.}. Since documents in this dataset belong to four different clearly separated categories, it was assumed there are four underlying general topics in the data and consequently the total number of topics to be obtained (parameter \(K\)) was set to 4. For the reason that the resulting cluster shall be quite homogeneous, the small alpha (0.5) was chosen. Before training a necessary preprocessing like tokenization, lemmatization and stemming, as well as removing stop word was done.
+
+\renewcommand{\arraystretch}{2}
+\begin{table}[ht]
+    \centering
+    \begin{tabularx}{\textwidth}{ |c|c|X| } 
+        \hline
+        \textbf{Topic Id} & \textbf{Freq} & \textbf{Topic Keywords} \\
+        \hline
+        1 & 0.34720 &  löw, sommer, bundestrainer, trainer, spieler, dfb, deutschland, fc bayern, fußball, münchen \\
+        \hline
+        2 & 0.25652 & werder bremen, saison, tor, mannschaft, sieg, sv werder bremen, ball, trainer, partie, werder \\
+        \hline
+        3 & 0.24969 & auto, netflix, staffel, adac, serie, prozent, autofahrer, deutschland, fahrzeug, sony \\
+        \hline
+        4 & 0.14658 &  love island, staffel, adriano, folge, bianca, script, rtl, emilia, kandidaten, liebe \\
+        \hline
+    \end{tabularx}
+    \caption{LDA Topics with topic score and topic keywords.}
+    \label{tab:lda_topic_keywords}
+\end{table}
+\renewcommand{\arraystretch}{1}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{LDA_1.png}
+\caption{pyLDAvis visualization of identified topics with the word distribution for the \(1^{st}\) topic.}
+\label{fig:lda_topics}
+\end{figure}
+
+
+As it could be seen from Table \ref{tab:lda_topic_keywords} representing LDA topics and their keywords, the two first topics are semantically very similar. Both of them cover the football topic and are actually the subtopics of it. Furthermore, like Figure \ref{fig:lda_topics} shows both subtopics are overlapped. Speaking about the third and the fourth topics, although they are well separated like it is demonstrated in Figure \ref{fig:lda_topics}, they are not defined very well. Based on the keywords of the third topic, it is not clear whether it is a Series or a Football cluster. The fourth topic seems to represent a Series cluster, while the Games theme is not presented at all.
+
+However, at this place, it is worth mentioning that the articles' distribution in the dataset (both small one and the entire data set) is rather unbalanced, since like it was already illustrated in Table \ref{tab:doc_dist}, the category Football has the highest number of articles comparing with the others three categories. Nevertheless, because this is the real data, and they are usually unbalanced, it could be seen as a challenge, with that a topic modelling algorithm has to deal.
+
+\section{Experiments with Top2Vec and different embedding techniques}
+\label{sec:exp}
+
+In this section all experiments with Top2Vec topic modelling algorithm that was conducted on German data are presented. Firstly, the experiments on small dataset was made. Here for the clustering evaluation, two validity indexes described in Chapter \ref{chapter:theory} (Subsection \ref{sec:validation}) were used: Density-Based Clustering Validation index (DBCV) \parencite{Moulavi14}, which is an internal metric and the external one, namely adjusted Rand Index \parencite{Hubert85}. Then Top2Vec algorithm with the parameter setup achieved one of the best results per each embedding model was run on the whole dataset. In this case the resulting clusters were evaluated only with internal DBCV index, since for these data no ground truth labels are available.
+
+Please note, that the clustering validity index alone is not enough to access the validity of clusters and an additional instrument like visualization is needed \parencite{Halkidi01b}. So to verify how homogeneous the resulting clusters are and to check the assignment of topics to documents after each training an HTML file was created. This file contains for all trained data both the original information that comes from the in-house database and model's output. The original information includes such metadata like document ID, client, category, headline and content. The output of the trained model consist of the assigned to each document topic ID and topic keywords. The Listing \ref{listing:data-example} demonstrates the same document as the Listing \ref{listing:json-example} saved after training with some original metadata and information from the Top2Vec model.
+
+\begin{listing}[ht]
+\begin{minted}[frame=single,
+            style=borland,
+            showtabs=false,     
+            framesep=3mm,
+            escapeinside={\%*}{*)},        
+            linenos=true,
+            breaklines=true,
+            xleftmargin=21pt,
+            tabsize=4]{html}
+<tr>
+  <td>90161825</td>
+  <td>tz</td>
+  <td>Politik</td>
+  <td>Impfbereitschaft in Deutschland nimmt zu</td>
+  <td>Berlin (dpa) - Die Bereitschaft zur Impfung gegen das Coronavirus hat laut einer Umfrage in Deutschland zugenommen. In einer Befragung von infratest dimap für den ARD-Deutschlandtrend von Anfang der Woche gaben 54 Prozent an, sich auf jeden Fall gegen das Coronavirus impfen lassen zu wollen. Das waren 17 Prozentpunkte mehr als im November 2020. Weitere 21 Prozent sagten, sie wollten sich wahrscheinlich impfen lassen (minus 13 Prozentpunkte). Die Impfbereitschaft sei in allen Altersgruppen gewachsen, insbesondere aber bei den Menschen unter 65 Jahren. Nach wie vor zeigten sich jüngere Menschen gegenüber einer Corona-Impfung weniger offen als ältere. Rund 36 Prozent der Befragten bezeichneten das Tempo der begonnenen Corona-Impfungen als angemessen, mehr als die Hälfte (52 Prozent) empfinden es als zu langsam. 70 Prozent erklärten, es sei richtig gewesen, dass die EU-Länder die Impfstoffe gemeinsam bestellt haben. 26 Prozent halten das für falsch.</td>
+  <td>53</td>
+  <td>[forsa, prozentpunkte, umfrage, prozentpunkt, insa, befragten, prozentpunkten, erhebung, prozent, umfragen, umfragewerte, bundestagswahl, infratest, dimap, bundesburger, grunen, auftrag, unionsparteien, unverandert, kanzlerkandidat, befragung, minus, wahlern, befragt, yougov, fdp, wahler, kanzlerschaft, wahlen, kame, annalena, baerbock, habeck, landtagswahlen, unions, ampelkoalition, cdu, laschet, zweitstarkste, ergab, kanzler, zustimmung, zuwachs, spd, armin, gleichauf, union, vergleich, regierende, wahlberechtigte]</td>
+</tr>
+\end{minted}
+\caption{The same document with some metadata and an information from the trained model (topic ID: 53 and topic keywords).} 
+\label{listing:data-example}
+\end{listing}
+
+Then using all this information clusters were visualized\footnote{For the clusters visualization the t-SNE dimensionality reduction algorithma and interactive data visualization Python library \href{https://bokeh.org/}{Bokeh} was used.} such that each data point that denotes a document got an annotation label that contains the ID of the corresponding document, its headline as well as assigned topic ID and topic keywords. Figure \ref{fig:cluster_vis} shows the example of the cluster visualization for one of the trained model. The topic clusters itself are plotted by the combination of different colours and shapes of the points, the IDs of each cluster are represented on the right side. The label annotation for every point is interactive. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{vis_example.png}
+\caption{The example of cluster visualization with t-SNE.}
+\label{fig:cluster_vis}
+\end{figure}
+
+
+\subsection{Experiments with embedding models}
+\label{sec:exp_emb}
+
+Apart from doc2vec....
+
+
+The multilingual Universal Sentence Encoder embedding model was trained on different texts from 16 languages like English, German, French, Arabic, Chinese, etc. Its training data consists of question-answering pairs from online forums and QA websites\footnote{Reddit, StackOverflow, and YahooAnswers.}, translation pairs, and the Stanford Natural Language Inference (SNLI) corpus \parencite{Cer18c}. Since the SNLI corpus contains only English sentences, to obtain them in other 15 languages, the sentences were translated with Google's translation system \parencite{Cer18c}. The resulting training corpus amounted to 8 million sample of sentences.
+
+The next three embedding models are based on Sentence-Bert architecture \parencite{Reimers19}. For the training all of them the parallel data from nine different datasets\footnote{Such datasets include GlobalVoices corpus with news stories, News-Commentary dataset with political and economic commentaries, WikiMatrix with parallel sentences from Wikipedia, and some other translated texts collections.} was used. The first SBERT based model is \textquote{Distiluse-base-multilingual-cased} pre-trained model, which is multilingual distilled version of multilingual Universal Sentence Encoder and supports 15 languages. 
+
+
+Another bilingual model is Cross English \& German RoBERTa for Sentence Embeddings
+
+
+This model is based on XLM-RoBERTa (XML-R) model, that was trained on more than 50 Million paraphrases pairs \parencite{Reimers20}.
+ large scale paraphrase dataset for 50+ languages. 
+
+
+
+
+
+
+
+\subsection{UMAP and HDBSCAN hyperparameter optimization}
+\label{sec:hypeparam}
+blabal
+
+
+\chapter{Results and evaluation}
+
+blablabla
+
+\section{Top2Vec with doc2vec embedding}
+\label{sec:doc2vec_results}
+blabal
+
+\section{Top2Vec with Multilingual universal sentence encoder}
+\label{sec:muse_results}
+
+blablabla
+
+\section{Top2Vec with Sentence Transformers}
+\label{sec:senttrans_results}
+blablabla
+
+
+\subsection{"Distiluse-base-multilingual-cased"}
+\label{sec:muse_result}
+blabal
+
+
+\subsection{German RoBERTa for Sentence Embeddings V2}
+\label{sec:roberta_de_result}
+blabal
+
+\subsection{Cross English \& German RoBERTa for Sentence Embeddings}
+\label{sec:roberta_de_en_result}
+blabal
+
+\section{Discussion}
+\label{sec:discussion}
+blablabla
+
+
+\chapter{Conclusion and Future Work}
+blablabla
+
+\section{Conclusion}
+blablabla
+
+\section{Future Work}
+blablabla
+
+
+\newpage
+
+
+
+% Imports the bibliography file "sample.bib" 
+%Includes "Bibliography" in the table of contents
+\printbibliography[heading=bibintoc]
+
+
+\newpage
+
+% Abbildungsverzeichnis (kann auch nach dem Inhaltsverzeichnis kommen)
+\listoffigures
+\newpage
+
+% Tabellenverzeichnis (kann auch nach dem Inhaltsverzeichnis kommen)
+\listoftables
+\newpage
+
+% \lstlistoflistings
+% % \addcontentsline{toc}{section}{Listings}
+% \newpage
+
+
+\addchap{Inhalt der beigelegten CD}
+
+\end{document}
+
