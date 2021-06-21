@@ -116,11 +116,7 @@ The rest of the chapter is organized as follows. In Section \ref{sec:A} such sta
 \section{Embedding techniques in text analysis}
 \label{sec:A}
 
-The introduction of embeddings was an important step in machine learning that began a new era in natural language processing. Before embeddings, the numeric representation of texts was acquired using simple approaches like one-hot encoding and the bag-of-words (BOW) representation of documents. These techniques, however, have some weaknesses. The most crucial drawback among them for text representation that should be mentioned is the ignoring of the word semantics, which leads to 
-
-
-
-Firstly, the lack of consideration for word semantic in these methods leads to equal distance between similar and dissimilar words in the semantic spaces. Secondly, both methods disregard word order, and as a result, semantically different sentences consisting of the same words might have the same vector representation. The introduction of methods enabling learning of distributed representation of words, rendered it possible to capture syntactic and semantic relationships between the words \parencite{Le14}. 
+The introduction of embeddings was an important step in machine learning that began a new era in natural language processing. Before embeddings, the numeric representation of texts was acquired using simple approaches like one-hot encoding and the bag-of-words (BOW) representation of documents. These techniques, however, have some weaknesses. The two most crucial drawbacks among them for text representation that should be mentioned are the disregard for the word semantics and the context. The first one leads to the fact that the similar words are treated as different ones. The second shortcoming concerns the larger pieces of text like sentences and can result in similar vectorized representation of them, if they consist of the similar words but have different meaning. The introduction of methods enabling learning of distributed representation of words, rendered it possible to capture syntactic and semantic relationships between the words \parencite{Le14}. 
 
 The first method aimed at learning dense vector representation of words with neural networks, known as the \verb|word2vec| algorithm, was introduced by Tomas Mikolov \parencite{TMikolov13} (see also \parencite{Mikolov13}). It is based on the so-called \textquote{distributional hypothesis} \parencite{Harris54}. The main idea of the hypothesis was expressed by the English linguist John Rupert Firth, who said that a word is characterized by the company it keeps \parencite{Firth57}.
 
@@ -341,7 +337,7 @@ In DBSCAN, the identification of the dense regions depends on two input paramete
 
 This method has some disadvantages. The result of the clustering depends greatly on the \emph{epsilon} parameter which is hard to choose intuitively and set correctly. It appears that this \textquote{\emph{global} density threshold} \parencite{Malzer20} prevents detecting clusters with different densities. Another problem of DBSCAN is that it is not deterministic, since if the border point is density-reachable from more than one cluster (core points) the result, that is to what cluster it is assigned, depends on the implementation and processing order of the data. 
 
-HDBSCAN overcomes all these limitations and does not require any \(\varepsilon\)-threshold parameter. The minimum number of neighbours (\(min_{pts}\)) is the only input parameter that should be provided for the algorithm. Given this parameter, the hierarchical structure ("HDBSCAN hierarchy" \parencite{Campello13}) w.r.t. \(min_{pts}\) is built with all possible values for the \(\varepsilon\) neighbourhood radius. In order to identify noise points and to distinguish them from the objects in the dense area HDBSCAN's authors introduced the concept of \emph{"mutual reachability distance"} \parencite[p.~163]{Campello13} between two objects \(\textbf{x}_p\) and \(\textbf{x}_q\), that is defined as follows: \[d_{mreach}(\textbf{x}_p, \textbf{x}_q) = max\{d_{core}(\textbf{x}_p), d_{core}(\textbf{x}_q), d(\textbf{x}_p, \textbf{x}_q)\}\] 
+HDBSCAN overcomes all these limitations and does not require any \(\varepsilon\)-threshold parameter. The minimum number of neighbours (\(min_{pts}\)) is the only input parameter that should be provided to the algorithm. Given this parameter, the hierarchical structure ("HDBSCAN hierarchy" \parencite{Campello13}) w.r.t. \(min_{pts}\) is built with all possible values for the \(\varepsilon\) neighbourhood radius. In order to identify noise points and to distinguish them from the objects in the dense area HDBSCAN's authors introduced the concept of \emph{"mutual reachability distance"} \parencite[p.~163]{Campello13} between two objects \(\textbf{x}_p\) and \(\textbf{x}_q\), that is defined as follows: \[d_{mreach}(\textbf{x}_p, \textbf{x}_q) = max\{d_{core}(\textbf{x}_p), d_{core}(\textbf{x}_q), d(\textbf{x}_p, \textbf{x}_q)\}\] 
 where \(d(\textbf{x}_p, \textbf{x}_q)\) is a chosen distance (Euclidean, Manhattan, Jaccard, etc.) between these two points. It makes HDBSCAN more robust to noise and allows to renders the concept of border points unnecessary. 
 
 Using Prim's algorithm \parencite{Mamun16} the detected data subsets can be visualized in the form of a minimum spanning tree with data points as vertices connected by the edges according to the mutual reachability distance. Based on the minimum spanning tree, the cluster hierarchy can be represented as a dendrogram, and the construction of the hierarchy is achieved by sorting the edges in the ascending order of the distance value. Then a different number of flat clusters with a number of points greater than or equal to \(min_{pts}\) can be obtained by setting the \(\varepsilon\)-threshold to the particular value.
@@ -385,20 +381,20 @@ When dealing with unsupervised clustering algorithms, the validation procedure i
 
 \chapter{Dataset}
 \label{chap:dataset}
-This chapter aims to provide a representation of the underlying data used to extract the topic clusters with Top2Vec topic modelling algorithm and different embedding models\footnote{More details about embeddings model the Top2Vec algorithm was tested with please see in the next Chapter (Chapter \ref{chap:exp}).}. In order to evaluate the clustering results in a supervised way, a toy corpus has been created. For the unsupervised training, a much larger dataset was used. 
+This chapter aims at providing a representation of the data used to extract the topic clusters with Top2Vec topic modelling algorithm and different embedding models\footnote{More details about embeddings model the Top2Vec algorithm was tested with please see in the next Chapter (Chapter \ref{chap:exp}).}. In order to evaluate the clustering results in a supervised way, a small labelled corpus has been created. For unsupervised training, a much larger dataset was used. 
 
-The overview of the whole dataset is presented in Section \ref{sec:corp_exploration} of this chapter. The process of preparation of the dataset for cluster evaluation in the supervised and unsupervised mode is described in Section \ref{sec:exp_setup}.
+The overview of the entire dataset is presented in Section \ref{sec:corp_exploration} of this chapter. The process of preparation of the dataset for cluster evaluation in the supervised and unsupervised mode is described in Section \ref{sec:exp_setup}.
 
 \section{Corpus description}
 \label{sec:corp_exploration}
 
-The underlying dataset was provided by the Ippen Digital GmbH \& Co. KG and consists of the German news articles from various regional newspaper publishers like Merkur, TZ, Frankfurter Rundschau, etc. The articles covered a broad range of topics from local news, business and politics to sport news, TV and articles on the automotive industry.
+The dataset for this thesis was provided by the Ippen Digital GmbH \& Co. KG. It consists of German news articles from various regional newspaper publishers like Merkur, TZ, Frankfurter Rundschau, etc. The articles cover a broad range of topics from local news, business and politics to sport news, TV, and articles on the automotive industry.
 
-The data were extracted from the in-house database for the period of January to April 2021. Each document from this database apart from the content contains also metadata such as a document ID, length (the number of characters in the article), "client" (what newspaper publisher the article comes from), "category", "headline", seo headline and some other information. The exemplary document is demonstrated in the Listing \ref{listing:json-example}.
+The data were extracted from the in-house database for the period of January to April 2021. Each document from this database apart from the content also contains metadata such as a document ID, length (the number of characters in the article), "client" (what newspaper publisher the article comes from), "category", "headline", seo headline, along with some other information. An exemplary document is demonstrated in the Listing \ref{listing:json-example}.
 
-To create a dataset, all documents within the mentioned period were filtered by the following categories: "Auto", "Games", "Politik" (Politics), "Fußball" (Football), "Sport", "Kultur" (Culture), "Serien" (Series), "Film, TV \& Serien", "Serien, TV \& Kino" (Series, TV \& Cinema). The last three categories were considered as belonging to the one topic since they have similar content, but differ only in their name depends on the newspaper they belong to. For the clustering evaluation after training, this category was unified as a "Serien" one. The entire dataset consists of the 17.532 documents, that was extracted with all available metadata and saved as several JSON files.
+To create a dataset, all documents within the mentioned period were filtered by the following categories: "Auto", "Games", "Politik" (Politics), "Fußball" (Football), "Sport", "Kultur" (Culture), "Serien" (Series), "Film, TV \& Serien", "Serien, TV \& Kino" (Series, TV \& Cinema). The last three categories were considered as belonging to one topic since they have similar content, but differ only in their name, depending on the newspaper they belong to. For clustering evaluation after training, this category was unified under the name of "Serien". The entire dataset consists of the 17.532 documents, that was extracted with all available metadata and saved in JSON files.
 
-Before training the content of the documents was cleaned while the lines that have nothing to do with the article itself like HTML hyperlinks or some metadata (e.g., © dpa-infocom) were removed.
+Before training, the content of the documents was pre-processed to remove the lines that have nothing to do with the article content, like HTML hyperlinks or irrelevant metadata (e.g., © dpa-infocom).
 
 
 \begin{listing}[ht!]
@@ -430,14 +426,14 @@ Before training the content of the documents was cleaned while the lines that ha
 \label{listing:json-example}
 \end{listing}
  
-\section{Dataset preparation for cluster evaluation in supervised way}
+\section{Dataset preparation for supervised cluster evaluation}
 \label{sec:exp_setup}
 
-Because depends on the embedding and UMAP and HDBSCAN parameters, the Top2Vec topic modelling algorithm leads to different results, it is important to run it on small subparts of the dataset. This makes it possible to run the algorithm in a semi-supervised way and to measure the quality of the resulting clusters not only with internal DBCV index \parencite{Moulavi14}, but also with the external one, namely adjusted Rand index \parencite{Hubert85}. 
+It is important to run Top2Vec algorithm on a small labeled section of the dataset, as the algorithm results depend on the embedding used, as well as on UMAP and HDBSCAN parameters. Having a labeled dataset allows to run the algorithm in a semi-supervised way and to measure the quality of the resulting clusters not only with an internal DBCV index \parencite{Moulavi14}, but also with an external one, namely, the adjusted Rand index \parencite{Hubert85}. 
 
-For this purpose, a toy corpus was created, while from the whole dataset only articles for March 2021 was chosen and then filtered by the following categories: "Auto", "Games", "Fußball", "Serien" (and its name variations). These categories were selected in order to have articles with clearly separated content, whereas some words between at least three categories ("Games", "Fußball", "Serien") can be shared. That has made the algorithm's behaviour more transparent.
+For this purpose, a small labeled subcorpus was created, where only articles for March 2021 from the dataset were chosen and then filtered by the following categories: "Auto", "Games", "Fußball", "Serien" (and its name variations). These categories were selected in order to have articles with easily separable content, despite the fact that some words between at least three categories ("Games", "Fußball", "Serien") could be shared. Such a selection was meant to make the algorithm's behaviour more transparent.
 
-The final toy corpus consists of 1.640 documents with the following document distribution among four categories:
+The final labeled subcorpus, created in this manner, consists of 1.640 documents with the following document distribution among the four categories:
 
 \begin{table}[ht]
     \centering
@@ -454,27 +450,27 @@ The final toy corpus consists of 1.640 documents with the following document dis
         Serien & 306 \\
         \hline
     \end{tabular}
-    \caption{Document distribution within each of the four selected categories in the toy corpus.}
+    \caption{Document distribution within each of the four selected categories in the labeled subcorpus.}
     \label{tab:doc_dist}
 \end{table}
 
-Considering that the Top2Vec algorithm is prone to find a lot of subtopics, it is expected to have more than four clusters after the training. Therefore, in order to measure the quality of these clusters, all articles were manual annotated. 
+Considering the fact that Top2Vec algorithm is prone to finding a large number of subtopics, it was expected to identify more than four clusters after training. Therefore, in order to measure the quality of these clusters, all articles were manually annotated. 
 
-The annotation process was realized in four steps. Firstly, underlying subtopics per each category were identified. Secondly, each document was assigned a label that corresponds to the subtopic of the document. Thirdly, a dictionary with the mapping of the corresponding subtopic (label) to its relevant keywords was created. And finally, since for the computation of the validity score the adjusted Rand index requires not labels, but true and predicted topic IDs all manual created labels a corresponding ID was assigned based on the matching between topic and label keywords (the same ID as that of the topic in case of match or a new ID).
+The annotation process was carried out in four steps. Firstly, the subtopics of each category were identified. Secondly, each document was assigned a label that corresponds to the subtopic of the document. Thirdly, a dictionary with the mapping of the corresponding subtopic (label) to the relevant keywords was created. Finally, all manually assigned labels were mapped to their corresponding IDs based on the matching between topic and label keywords (the same ID as that of the topic in case of match or a new ID). This was done because to compute the validity score the adjusted Rand index requires not class labels, but true and predicted topic IDs.
 
-Lastly, after the process of UMAP and HDBSCAN parameter selection with each available embedding was done and the set of parameters with that Top2Vec algorithm output the best clusters on toy corpus was found, the algorithm with these parameters was applied to the entire dataset.
+This labeled subcorpus was used for embedding and UMAP and HDBSCAN parameter selection. The set of parameters that worked best for Top2Vec algorithm on the labeled subcorpus was used for working with the entire dataset.
 
 \chapter{Experiments}
 \label{chap:exp}
 
-In this chapter the experiments with relevant methods explained in Chapter \ref{chapter:theory} and implementation aspects will be presented. The baseline model is addressed in Section \ref{sec:lda_baseline}. Experiments itself are explained in Section \ref{sec:exp}. It includes the tests with different embedding models (both suggested by Top2Vec algorithm and additionally integrated into that to obtain German embedding) (Section \ref{sec:exp_emb}) and hyperparameter selection process to get a better clustering (Section \ref{sec:hypeparam}).
+In this chapter the experiments with relevant methods explained in Chapter \ref{chapter:theory} and implementation aspects are presented. The baseline model is addressed in Section \ref{sec:lda_baseline}. The experiments are laid out in Section \ref{sec:exp}. They include, firstly, the tests with different embedding models, both the ones suggested by Top2Vec algorithm and the ones additionally integrated into it to obtain German embedding, (Section \ref{sec:exp_emb}), and, secondly, hyperparameter selection process for better clustering performance (Section \ref{sec:hypeparam}).
 
 \section{Test with LDA as baseline topic model}
 \label{sec:lda_baseline}
 
-Since topic modelling belongs to an unsupervised learning, it is a hard to find an optimal heuristic for it. Therefore to understand the context of topic modelling with the underling data and possible challenges that could be helpful to find better more complex solution a simple baseline model is needed. As a such baseline model Latent Dirichlet Allocation (LDA) considered in Section \ref{sec:lda} of Chapter \ref{chapter:theory} was chosen, since it is the most common type of topic modelling.
+Since topic modelling belongs to an unsupervised learning, it is a difficult to find an optimal heuristic for it. Therefore, a simple baseline model is needed to understand the interaction of the topic modelling algorithm with the particular dataset used as well as the possible challenges that should be taken into account to find a more complex solution. Being the most common type of topic modelling, Latent Dirichlet Allocation (LDA) considered in Section \ref{sec:lda} of Chapter \ref{chapter:theory} was chosen to be the baseline model.
 
-The LDA algorithm was run on the small dataset with 200 iterations\footnote{The number of iterations was determined based on the log likelihood parameter.}. Since documents in this dataset belong to four different clearly separated categories, it was assumed there are four underlying general topics in the data and consequently the total number of topics to be obtained (parameter \(K\)) was set to 4. For the reason that the resulting cluster shall be quite homogeneous, the small alpha (0.5) was chosen. Before training a necessary preprocessing like tokenization, lemmatization and stemming, as well as removing stop word was done.
+The LDA algorithm was run on the small labeled dataset with 200 iterations\footnote{The number of iterations was determined based on the log likelihood parameter.}. Since documents in this dataset belong to four clearly separated categories, the total number of topics to be obtained (parameter \(K\)) was set to 4. The alpha (0.5) parameter was set to a small value, as the resulting clusters were expected to be quite homogeneous. The necessary preprocessing, like tokenization, lemmatization and stemming, as well as removing stop-words, was performed before training.
 
 \renewcommand{\arraystretch}{2}
 \begin{table}[ht]
@@ -505,16 +501,16 @@ The LDA algorithm was run on the small dataset with 200 iterations\footnote{The 
 \end{figure}
 
 
-As it could be seen from Table \ref{tab:lda_topic_keywords} representing LDA topics and their keywords, the two first topics are semantically very similar. Both of them cover the football topic and are actually the subtopics of it. Furthermore, like Figure \ref{fig:lda_topics} shows both subtopics are overlapped. Speaking about the third and the fourth topics, although they are well separated like it is demonstrated in Figure \ref{fig:lda_topics}, they are not defined very well. Based on the keywords of the third topic, it is not clear whether it is a Series or a Football cluster. The fourth topic seems to represent a Series cluster, while the Games theme is not presented at all.
+Table \ref{tab:lda_topic_keywords} shows LDA topics and their keywords. It is clear from the keywords, that the two first topics are very similar semantically. Both of them cover the football topic and are, in fact, its subtopics. Furthermore, as Figure \ref{fig:lda_topics} shows, these subtopics overlap. As for the third and the fourth topics, although they are well-separated, as demonstrated in Figure \ref{fig:lda_topics}, they are not very well-defined. It is not clear from the keywords of the third topic, whether it is a Series or a Football cluster. The fourth topic seems to represent a Series cluster, while the Games theme is not presented at all.
 
-However, at this place, it is worth mentioning that the articles' distribution in the dataset (both small one and the entire data set) is rather unbalanced, since like it was already illustrated in Table \ref{tab:doc_dist}, the category Football has the highest number of articles comparing with the others three categories. Nevertheless, because this is the real data, and they are usually unbalanced, it could be seen as a challenge, with that a topic modelling algorithm has to deal.
+However, at this point, it is worth mentioning that the theme distribution in the dataset (both the small subcorpus and the complete dataset) is rather imbalanced, since, as already shown in Table \ref{tab:doc_dist}, the Football category has the highest number of articles compared to the other three categories. However, since the real-world data are often imbalanced, it could be seen as a challenge that a topic modelling algorithm has to deal with.
 
 \section{Experiments with Top2Vec and different embedding techniques}
 \label{sec:exp}
 
-In this section all experiments with Top2Vec topic modelling algorithm that was conducted on German data are presented. Firstly, the experiments on small dataset was made. Here for the clustering evaluation, two validity indexes described in Chapter \ref{chapter:theory} (Subsection \ref{sec:validation}) were used: Density-Based Clustering Validation index (DBCV) \parencite{Moulavi14}, which is an internal metric and the external one, namely adjusted Rand Index \parencite{Hubert85}. Then Top2Vec algorithm with the parameter setup achieved one of the best results per each embedding model was run on the whole dataset. In this case the resulting clusters were evaluated only with internal DBCV index, since for these data no ground truth labels are available.
+This section presents all the experiments performed with Top2Vec topic modelling algorithm conducted on German data. Firstly, the experiments on the small labeled subcorpus were run in order to determine the optimal parameter set. Here, two validity indexes described in Chapter \ref{chapter:theory} (Subsection \ref{sec:validation}) were used for clustering evaluation: Density-Based Clustering Validation index (DBCV) \parencite{Moulavi14}, which is an internal metric, and the adjusted Rand Index \parencite{Hubert85}, which is an external one. Then, Top2Vec algorithm with the parameter set that has achieved the best results per each embedding model was run on the entire dataset. For the lack of available ground truth labels, the resulting clusters were evaluated only with the internal DBCV index.
 
-Please note, that the clustering validity index alone is not enough to access the validity of clusters and an additional instrument like visualization is needed \parencite{Halkidi01b}. So to verify how homogeneous the resulting clusters are and to check the assignment of topics to documents after each training an HTML file was created. This file contains for all trained data both the original information that comes from the in-house database and model's output. The original information includes such metadata like document ID, client, category, headline and content. The output of the trained model consist of the assigned to each document topic ID and topic keywords. The Listing \ref{listing:data-example} demonstrates the same document as the Listing \ref{listing:json-example} saved after training with some original metadata and information from the Top2Vec model.
+Please note, that the clustering validity index alone is not enough to access the validity of clusters and an additional instrument like visualization is needed \parencite{Halkidi01b} to verify the resulting scores. To assess how homogeneous the resulting clusters are and to check the assignment of topics to documents an HTML file was created after each model training. The file contained both the original information from the in-house database and model's output. The original information included such metadata as document ID, client, category, headline, and content. The output of the trained model consisted of the topic ID and topic keywords assigned to each document. The Listing \ref{listing:data-example} demonstrates the same document as the Listing \ref{listing:json-example} saved after training with some original metadata and the information provided by the Top2Vec model.
 
 \begin{listing}[ht]
 \begin{minted}[frame=single,
@@ -536,11 +532,11 @@ Please note, that the clustering validity index alone is not enough to access th
   <td>[forsa, prozentpunkte, umfrage, prozentpunkt, insa, befragten, prozentpunkten, erhebung, prozent, umfragen, umfragewerte, bundestagswahl, infratest, dimap, bundesburger, grunen, auftrag, unionsparteien, unverandert, kanzlerkandidat, befragung, minus, wahlern, befragt, yougov, fdp, wahler, kanzlerschaft, wahlen, kame, annalena, baerbock, habeck, landtagswahlen, unions, ampelkoalition, cdu, laschet, zweitstarkste, ergab, kanzler, zustimmung, zuwachs, spd, armin, gleichauf, union, vergleich, regierende, wahlberechtigte]</td>
 </tr>
 \end{minted}
-\caption{The same document with some metadata and an information from the trained model (topic ID: 53 and topic keywords).} 
+\caption{The same document with metadata and the information from the trained model (topic ID and topic keywords).} 
 \label{listing:data-example}
 \end{listing}
 
-Then using all this information clusters were visualized\footnote{For the clusters visualization the t-SNE dimensionality reduction algorithma and interactive data visualization Python library \href{https://bokeh.org/}{Bokeh} was used.} such that each data point that denotes a document got an annotation label that contains the ID of the corresponding document, its headline as well as assigned topic ID and topic keywords. Figure \ref{fig:cluster_vis} shows the example of the cluster visualization for one of the trained model. The topic clusters itself are plotted by the combination of different colours and shapes of the points, the IDs of each cluster are represented on the right side. The label annotation for every point is interactive. 
+The resulting clusters were visualized\footnote{For the clusters visualization the t-SNE dimensionality reduction algorithma and interactive data visualization Python library \href{https://bokeh.org/}{Bokeh} was used.} using all this information, such that each data point, i.e. a document, got an annotation label that contained the ID of the corresponding document, its headline, as well as the assigned topic ID and topic keywords. Figure \ref{fig:cluster_vis} shows the example of the cluster visualization for one of the trained models. The topic clusters themselves are plotted by the combination of different colours and shapes of the points, the legend with the cluster IDs is shown on the right side. The label annotation for every point is interactive. 
 
 \begin{figure}[h]
 \centering
@@ -554,14 +550,12 @@ Then using all this information clusters were visualized\footnote{For the cluste
 \label{sec:exp_emb}
 
 
+The multilingual Universal Sentence Encoder embedding model was trained on different texts from 16 languages, including English, German, French, Arabic, Chinese, etc. Its training data consisted of question-answering pairs from online forums and QA websites\footnote{Reddit, StackOverflow, and YahooAnswers.}, translation pairs, and the Stanford Natural Language Inference (SNLI) corpus \parencite{Cer18c}. Since SNLI corpus only contains English sentences, to obtain them for the other 15 languages, the sentences were translated with Google's translation system \parencite{Cer18c}. The resulting training corpus amounted to 8 million sentence samples.
+
+The next three embedding models are based on Sentence-Bert architecture \parencite{Reimers19}. Parallel data from nine different datasets\footnote{Such datasets include GlobalVoices corpus with news stories, News-Commentary dataset with political and economic commentaries, WikiMatrix with parallel sentences from Wikipedia, and some other translated texts collections.} were used for training these models. The first SBERT-based model is \textquote{Distiluse-base-multilingual-cased} pre-trained model, which is multilingual distilled version of multilingual Universal Sentence Encoder and supports 15 languages. 
 
 
-The multilingual Universal Sentence Encoder embedding model was trained on different texts from 16 languages like English, German, French, Arabic, Chinese, etc. Its training data consists of question-answering pairs from online forums and QA websites\footnote{Reddit, StackOverflow, and YahooAnswers.}, translation pairs, and the Stanford Natural Language Inference (SNLI) corpus \parencite{Cer18c}. Since the SNLI corpus contains only English sentences, to obtain them in other 15 languages, the sentences were translated with Google's translation system \parencite{Cer18c}. The resulting training corpus amounted to 8 million sample of sentences.
-
-The next three embedding models are based on Sentence-Bert architecture \parencite{Reimers19}. For the training all of them the parallel data from nine different datasets\footnote{Such datasets include GlobalVoices corpus with news stories, News-Commentary dataset with political and economic commentaries, WikiMatrix with parallel sentences from Wikipedia, and some other translated texts collections.} was used. The first SBERT based model is \textquote{Distiluse-base-multilingual-cased} pre-trained model, which is multilingual distilled version of multilingual Universal Sentence Encoder and supports 15 languages. 
-
-
-Another bilingual model is Cross English \& German RoBERTa for Sentence Embeddings
+Another bilingual model is Cross English \& German RoBERTa for Sentence Embeddings.
 
 
 This model is based on XLM-RoBERTa (XML-R) model, that was trained on more than 50 Million paraphrases pairs \parencite{Reimers20}.
